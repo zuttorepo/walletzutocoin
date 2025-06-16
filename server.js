@@ -8,6 +8,10 @@ app.use(bodyParser.json());
 
 // Routing
 app.use('/api/address', require('./routes/api/address/balance'));
+app.use('/api/tx', require('./routes/api/tx/send'));
+app.use('/api/tx', require('./routes/api/tx/history'));
+app.use('/api/wallet', require('./routes/api/wallet/encrypt'));
+app.use('/api/wallet', require('./routes/api/wallet/decrypt'));
 
 // Root
 app.get('/', (req, res) => {
