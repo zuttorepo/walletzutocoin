@@ -1,32 +1,29 @@
-// app.js
-
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
+const morgan = require('morgan');
 
 const walletRoutes = require('./routes/api/wallet');
-const balanceRoutes = require('./routes/api/balance');
-const sendRoutes = require('./routes/api/send');
+const balanceRoutes = require('./routes/api/address/balance');
+const sendRoutes = require('./routes/api/tx/send');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
 app.use(bodyParser.json());
+app.use(morgan('dev'));
 
 // Routes
 app.use('/api/wallet', walletRoutes);
-app.use('/api', balanceRoutes); // misal: GET /api/:address/balance
-app.use('/api/send', sendRoutes); // misal: POST /api/send
+app.use('/api/address', balanceRoutes);
+app.use('/api/tx', sendRoutes);
 
-// Root Endpoint
+// Root
 app.get('/', (req, res) => {
-  res.send('Zuttocoin Wallet API is running...');
+  res.send('✅ Zuttocoin ZTC Node API aktif');
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 ZTC Node API running on http://localhost:${PORT}`);
 });
-
