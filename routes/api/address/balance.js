@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../../db'); // Pastikan path ini sesuai
+const db = require('../../../db'); // Cek file db.js ada!
 
 router.get('/:address/balance', async (req, res) => {
   const address = req.params.address;
@@ -10,22 +10,20 @@ router.get('/:address/balance', async (req, res) => {
     db.db.createReadStream()
       .on('data', ({ key, value }) => {
         try {
-          const data = typeof value === 'string' ? JSON.parse(value) : value;
-          if (data.address === address) {
-            balance += data.amount;
+          const utxo = typeof value === 'string' ? JSON.parse(value) : value;
+          if (utxo.address === address) {
+            balance += utxo.amount;
           }
-        } catch (e) {
-          // Lewati data corrupt
-        }
-      })
-      .on('error', (err) => {
-        res.status(500).json({ error: 'Database read error', details: err.toString() });
+        } catch (e) {}
       })
       .on('end', () => {
         res.json({ address, balance });
+      })
+      .on('error', (err) => {
+        res.status(500).json({ error: 'Read error', details: err.toString() });
       });
   } catch (e) {
-    res.status(500).json({ error: 'Server error', details: e.toString() });
+    res.status(500).json({ error: e.toString() });
   }
 });
 
