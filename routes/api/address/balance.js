@@ -1,19 +1,32 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const PORT = 3000;
+const router = express.Router();
+const db = require('../../../db'); // Pastikan path ini sesuai
 
-// Middleware
-app.use(bodyParser.json());
+router.get('/:address/balance', async (req, res) => {
+  const address = req.params.address;
+  let balance = 0;
 
-// Routing
-app.use('/api/address', require('./routes/api/address/balance'));
-
-// Root
-app.get('/', (req, res) => {
-  res.send('✅ Zuttocoin ZTC Node API aktif');
+  try {
+    db.db.createReadStream()
+      .on('data', ({ key, value }) => {
+        try {
+          const data = typeof value === 'string' ? JSON.parse(value) : value;
+          if (data.address === address) {
+            balance += data.amount;
+          }
+        } catch (e) {
+          // Lewati data corrupt
+        }
+      })
+      .on('error', (err) => {
+        res.status(500).json({ error: 'Database read error', details: err.toString() });
+      })
+      .on('end', () => {
+        res.json({ address, balance });
+      });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error', details: e.toString() });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 ZTC Node API running on http://localhost:${PORT}`);
-});
+module.exports = router;
