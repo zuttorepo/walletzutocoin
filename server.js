@@ -6,11 +6,7 @@ const PORT = 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// Routing modular - Pastikan semua sudah dihubungkan dengan benar
-app.use('/api/wallet', require('./routes/api/wallet/create'));
-app.use('/api/wallet', require('./routes/api/wallet/import'));
-app.use('/api/tx', require('./routes/api/tx/send'));
-app.use('/api/tx', require('./routes/api/tx/history'));
+// Routing
 app.use('/api/address', require('./routes/api/address/balance'));
 
 // Root
