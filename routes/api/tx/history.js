@@ -1,42 +1,16 @@
+// routes/api/tx/history.js
 const express = require('express');
 const router = express.Router();
-const { db } = require('../../../db');
-const { isValidAddress } = require('../../../core/wallet');
+const db = require('../../../db');
 
-router.get('/history/:address', async (req, res) => {
+router.get('/:address/history', async (req, res) => {
   const address = req.params.address;
 
-  if (!isValidAddress(address)) {
-    return res.status(400).json({ success: false, error: 'Address tidak valid' });
-  }
-
-  const history = [];
-
   try {
-    const stream = db.createReadStream();
-    stream
-      .on('data', ({ key, value }) => {
-        try {
-          const utxo = JSON.parse(value);
-          if (utxo.address === address) {
-            history.push({
-              txid: key,
-              amount: utxo.amount,
-              status: 'unspent' // kamu bisa ubah ini jika punya sistem tracking status
-            });
-          }
-        } catch (e) {
-          // abaikan data yang rusak
-        }
-      })
-      .on('end', () => {
-        res.json({ success: true, address, history });
-      })
-      .on('error', (err) => {
-        res.status(500).json({ success: false, error: 'Gagal membaca data' });
-      });
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Kesalahan internal' });
+    const history = await db.get(`txlog/${address}`) || [];
+    res.json({ address, history });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to retrieve TX history.' });
   }
 });
 
