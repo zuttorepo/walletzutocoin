@@ -49,6 +49,23 @@ function decryptPrivateKey(encryptedData, password) {
   return decrypted.toString('utf8');
 }
 
+// 🧠 Dari private key → public key → address
+function importPrivateKey(privateKeyHex) {
+  if (!/^[0-9a-fA-F]{64}$/.test(privateKeyHex)) {
+    throw new Error('Private key format tidak valid');
+  }
+
+  const key = ec.keyFromPrivate(privateKeyHex);
+  const publicKey = key.getPublic('hex');
+  const address = generateAddressFromPublicKey(publicKey);
+
+  return {
+    privateKey: privateKeyHex,
+    publicKey,
+    address
+  };
+}
+
 // ✅ Validasi address Zuttocoin
 function isValidAddress(address) {
   return typeof address === 'string' &&
@@ -59,6 +76,7 @@ function isValidAddress(address) {
 module.exports = {
   generateWallet,
   generateAddressFromPublicKey,
+  importPrivateKey,
   encryptPrivateKey,
   decryptPrivateKey,
   isValidAddress
