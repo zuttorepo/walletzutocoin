@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from routes import wallet, transaction
 from routes import supply  # Tambahkan import
+from fastapi import FastAPI
+from core.zt_rpc import rpc_call
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -38,3 +40,20 @@ def generate_wallet():
         "private_key": privkey,
         "address": address
     }
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"status": "RPC Server Aktif"}
+
+@app.get("/getinfo")
+def get_info():
+    return rpc_call("getinfo")
+
+@app.get("/getbalance")
+def get_balance():
+    return rpc_call("getbalance")
+
+@app.get("/sendto/{address}/{amount}")
+def send_to(address: str, amount: float):
+    return rpc_call("sendtoaddress", [address, amount])
