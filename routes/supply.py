@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from core.zt_rpc import rpc_call  # Pastikan ini ada
-import math
+from core.zt_rpc import rpc_call
+from core.config import REWARD_PER_BLOCK
 
 router = APIRouter()
 
@@ -8,12 +8,18 @@ router = APIRouter()
 def get_supply():
     try:
         block_height = rpc_call("getblockcount")
-        reward_per_block = 50  # Jika 50 ZTC per block, ganti jika beda
+        
+        # Validasi hasil RPC
+        if not isinstance(block_height, int):
+            raise ValueError("block_height dari node tidak valid")
+
+        reward_per_block = REWARD_PER_BLOCK
         total_supply = block_height * reward_per_block
+
         return {
-            "total_supply": total_supply,
             "block_height": block_height,
-            "reward_per_block": reward_per_block
+            "reward_per_block": reward_per_block,
+            "total_supply": total_supply
         }
     except Exception as e:
         return {"error": str(e)}
