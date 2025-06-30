@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from routes import wallet, transaction
 from routes import supply  # Tambahkan import
+import logging
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 app.include_router(wallet.router, prefix="/wallet")
