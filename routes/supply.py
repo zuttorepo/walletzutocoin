@@ -2,6 +2,13 @@ from fastapi import APIRouter
 from core.zt_rpc import rpc_call
 from core.config import REWARD_PER_BLOCK
 
+from core.zt_rpc import rpc_call
+
+@router.get("/supply")
+def supply():
+    info = rpc_call("getinfo")
+    return {"supply": info.get("moneysupply", "unknown")}
+    
 router = APIRouter()
 
 @router.get("/supply")
