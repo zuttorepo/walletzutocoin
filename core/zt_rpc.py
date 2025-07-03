@@ -1,18 +1,27 @@
-# core/zt_rpc.py
+import os
 import requests
-from config import RPC_HOST, RPC_PORT, RPC_USER, RPC_PASSWORD
+from dotenv import load_dotenv
+
+load_dotenv()
+
+RPC_URL = os.getenv("ZTC_RPC_URL")
 
 def rpc_call(method, params=[]):
-    url = f"http://{RPC_HOST}:{RPC_PORT}"
+    if not RPC_URL:
+        return {"error": "RPC URL tidak ditemukan di .env"}
+
     payload = {
         "jsonrpc": "1.0",
-        "id": "zutto",
+        "id": "ztc",
         "method": method,
         "params": params
     }
+
     try:
-        response = requests.post(url, json=payload, auth=(RPC_USER, RPC_PASSWORD))
+        response = requests.post(RPC_URL, json=payload)
         response.raise_for_status()
         return response.json()["result"]
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         return {"error": str(e)}
+    except KeyError:
+        return {"error": "Invalid RPC response"}
